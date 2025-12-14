@@ -14,6 +14,6 @@ export class Input {
   get steer() {
     const left  = this.down("a") ? 1 : 0;
     const right = this.down("d") ? 1 : 0;
-    return right - left; // -1 esquerda, 0 reto, +1 direita
+    return right - left; 
   }
 }

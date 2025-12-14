@@ -1,7 +1,6 @@
 export class Brain {
-  // rede 1 camada: outputs = tanh(W * inputs + b)
-  W: number[][]; // [out][in]
-  b: number[];   // [out]
+  W: number[][]; 
+  b: number[]; 
   inputSize: number;
   outputSize: number;
 
@@ -21,7 +20,7 @@ export class Brain {
       for (let i = 0; i < this.inputSize; i++) s += this.W[o][i] * inputs[i];
       out[o] = Math.tanh(s);
     }
-    return out; // [-1..1]
+    return out; 
   }
 
   clone() {

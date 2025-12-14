@@ -3,9 +3,9 @@ import { Track } from "./Track";
 export type RayHit = { dist: number; px: number; py: number } | null;
 
 export class Sensors {
-  rayCount = 10;           // use par (10, 12, 14...)
+  rayCount = 10;
   rayLength = 180;
-  raySpread = Math.PI * 0.9; // leque (frente e trás)
+  raySpread = Math.PI * 0.9;
 
   readings: number[] = [];
   rays: Array<{ x1: number; y1: number; x2: number; y2: number; hit: RayHit }> = [];
@@ -20,7 +20,6 @@ export class Sensors {
 
     const half = Math.floor(this.rayCount / 2);
 
-    // FRONT group (centro do carro)
     for (let i = 0; i < half; i++) {
       const t = half === 1 ? 0.5 : i / (half - 1);
       const a = angle + (this.raySpread / 2) - t * this.raySpread;
@@ -32,7 +31,6 @@ export class Sensors {
       this.rays.push({ x1: x, y1: y, x2, y2, hit });
     }
 
-    // BACK group (mesmo leque, só que +PI)
     for (let i = 0; i < half; i++) {
       const t = half === 1 ? 0.5 : i / (half - 1);
       const a = (angle + Math.PI) + (this.raySpread / 2) - t * this.raySpread;
