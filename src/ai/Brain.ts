@@ -39,6 +39,22 @@ export class Brain {
       if (Math.random() < rate) this.b[o] += rand(-strength, strength);
     }
   }
+
+  toJSON() {
+    return {
+      inputSize: this.inputSize,
+      outputSize: this.outputSize,
+      W: this.W,
+      b: this.b
+    };
+  }
+
+  static fromJSON(j: any) {
+    const br = new Brain(j.inputSize, j.outputSize);
+    br.W = j.W;
+    br.b = j.b;
+    return br;
+  }
 }
 
 function rand(min: number, max: number) {

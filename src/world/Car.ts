@@ -19,6 +19,8 @@ export class Car {
     lastX = this.x;
     lastY = this.y;
     lastTheta = Math.atan2(this.y - 350, this.x - 450);
+    prevSteer = 0;
+    checkpointIndex = 0;
 
     brain?: Brain;
 
@@ -33,6 +35,10 @@ export class Car {
 
         // sensores sempre atualizam
         this.sensors.update(this.x, this.y, this.angle, track);
+
+        // freio automático quando perto da parede
+        const danger = Math.max(...this.sensors.readings); // 0..1 (1 = parede perto)
+        const autoBrake = danger > 0.75;
 
         // decide ação (manual ou IA)
         let forward = false;
@@ -53,6 +59,16 @@ export class Car {
             brake = input.brake;
             steer = input.steer;
         }
+
+        // aplica freio automático
+        if (autoBrake) {
+            brake = true;
+            forward = false;
+        }
+
+        // suaviza steering (reduz nervosismo)
+        steer = this.prevSteer * 0.7 + steer * 0.3;
+        this.prevSteer = steer;
 
         // acelera / ré
         if (forward) this.speed += accel * dt;
@@ -85,6 +101,7 @@ export class Car {
             this.x = track.cx + dx * k;
             this.y = track.cy + dy * k;
             this.speed = 0;
+            this.fitness -= 50;
             this.alive = false;
         }
 
@@ -93,6 +110,7 @@ export class Car {
             this.x = track.cx + dx * k;
             this.y = track.cy + dy * k;
             this.speed = 0;
+            this.fitness -= 50;
             this.alive = false;
         }
 
@@ -101,9 +119,19 @@ export class Car {
         this.lastX = this.x;
         this.lastY = this.y;
 
-        // recompensa por se mover (progresso)
-        // progresso angular na pista (anti-horário)
+        // ---- CHECKPOINTS (V4) ----
         const theta = Math.atan2(this.y - track.cy, this.x - track.cx);
+        const target = track.checkpoints[this.checkpointIndex];
+
+        // distância angular pequena
+        const diff = Math.atan2(Math.sin(theta - target), Math.cos(theta - target));
+
+        if (Math.abs(diff) < 0.18) { // ~10 graus
+            this.checkpointIndex = (this.checkpointIndex + 1) % track.checkpointCount;
+            this.fitness += 30; // recompensa forte
+        }
+
+        // progresso angular na pista (anti-horário)
         let dTheta = theta - this.lastTheta;
 
         // normaliza pra [-PI, PI]
@@ -133,5 +161,11 @@ export class Car {
         this.speed = 0;
         this.alive = true;
         this.fitness = 0;
+        this.stuckTime = 0;
+        this.lastX = this.x;
+        this.lastY = this.y;
+        this.lastTheta = Math.atan2(this.y - 350, this.x - 450);
+        this.prevSteer = 0;
+        this.checkpointIndex = 0;
     }
 }
